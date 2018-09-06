@@ -1,0 +1,34 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Update System
+  become: yes
+  become_user: "{{task_user}}"
+  apt: 
+    cache_valid_time: 3600
+    force_apt_get: yes
+    update_cache: yes
+    upgrade: dist
+
+- name: Check if a reboot is required
+  stat:
+    path: /var/run/reboot-required
+    get_md5: no
+  register: needreboot
+
+- name: Reboot the server
+  shell: sleep 2 && /sbin/reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: needreboot.stat.exists == true
+
+- name: Wait for server to reboot.
+  become: false
+  local_action: wait_for
+  args:
+    delay: 10
+    timeout: 180
+    host: "{{ ansible_ssh_host }}"
+    state: started
+  when: needreboot.stat.exists == true

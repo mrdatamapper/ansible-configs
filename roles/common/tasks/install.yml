@@ -1,0 +1,13 @@
+---
+
+- name: Include packages
+  include_vars:
+    file: packages.yml
+
+
+- name: Install base packages
+  become: yes
+  become_user: "{{task_user}}"
+  apt:
+    name: "{{list_of_common_packages}}"
+    state: latest

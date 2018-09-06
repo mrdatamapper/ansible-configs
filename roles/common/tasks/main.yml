@@ -1,0 +1,10 @@
+---
+
+- name: Update Repos
+  include_tasks: 'repos.yml'
+
+- name: Update System
+  include_tasks: 'update.yml'
+
+- name: Install common pckages
+  include_tasks: 'install.yml'

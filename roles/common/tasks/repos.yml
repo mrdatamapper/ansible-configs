@@ -1,0 +1,9 @@
+---
+
+- name: Update System
+  become: yes
+  become_user: "{{task_user}}"
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '^(deb.+\s*bionic\S*\s+main)\s*$'
+    replace: '\1 restricted universe multiverse'

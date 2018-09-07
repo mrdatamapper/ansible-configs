@@ -3,7 +3,6 @@
 
 - name: Update System
   become: yes
-  become_user: "{{task_user}}"
   apt: 
     cache_valid_time: 3600
     force_apt_get: yes

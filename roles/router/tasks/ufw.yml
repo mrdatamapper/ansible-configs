@@ -1,0 +1,15 @@
+---
+
+- name: Allow  ssh
+  become: yes
+  ufw:
+    rule: limit
+    port: ssh
+    proto: tcp
+  notify: reload ufw
+
+- name: Enable ufw and deny all
+  become: yes
+  ufw:
+    state: enabled
+    policy: deny

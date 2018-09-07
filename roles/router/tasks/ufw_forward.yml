@@ -1,0 +1,10 @@
+---
+
+- name: Update ufw sysctl
+  become: yes
+  template: 
+    src: sysctl.conf.j2 
+    dest: /etc/ufw/sysctl.conf 
+    owner: root 
+    group: root 
+    mode: 0644

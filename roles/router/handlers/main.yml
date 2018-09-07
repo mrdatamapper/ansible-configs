@@ -1,0 +1,7 @@
+---
+# handlers file for router
+
+- name: reload ufw
+  become: yes
+  ufw:
+    state: reloaded

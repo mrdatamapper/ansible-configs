@@ -1,0 +1,15 @@
+---
+# tasks file for dnsmasq
+
+- name: install dnsmasq
+  become: yes
+  apt:
+    name: dnsmasq
+    state: latest
+
+- name: configure dnsmasq
+  include_tasks: 'config.yml'
+
+- name: configure ufw
+  include_tasks: 'ufw.yml'
+

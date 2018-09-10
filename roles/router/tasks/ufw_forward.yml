@@ -8,3 +8,15 @@
     owner: root 
     group: root 
     mode: 0644
+  notify: reload ufw
+
+
+- name: Update ufw default
+  become: yes
+  template: 
+    src: ufw.j2 
+    dest: /etc/default/ufw 
+    owner: root 
+    group: root 
+    mode: 0644
+  notify: reload ufw

@@ -1,11 +1,29 @@
 ---
 # This playbook deploys the whole application stack in this site.
 
-- name: apply common configuration to all nodes
-  hosts: linux
 
+
+
+- name: apply common configuration to all nodes
+  hosts: linuxx
   vars_files:
   - secret
-
   roles:
   - common
+
+- name: applay router config
+  hosts: routerx
+  vars_files:
+  - secret
+  roles:
+  #- router
+  #- dnsmasq
+
+- name: Applay web config
+  hosts: web
+  vars_files:
+  - secret
+  roles:
+  #- nginx
+  - php
+

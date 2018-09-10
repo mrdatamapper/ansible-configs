@@ -1,0 +1,82 @@
+---
+# tasks file for php
+
+- name: add src repos
+  become: yes  
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items: "{{ src_repos }}"
+
+- name: Add a postgres key  download if present
+  become: yes
+  apt_key:
+    id: B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: add additional repos
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items: "{{ php_additional_repos }}"
+
+- name: prepare install php
+  become: yes
+  apt:
+    name: php
+    state: build-dep
+
+- name: install addition packages
+  become: yes
+  apt:
+    name: "{{ php_depends_packages }}"
+    state: latest
+
+- name: create opt phpbrew dir
+  become: yes
+  file:
+    path: /opt/phpbrew
+    state: directory
+    mode: 0755
+
+- name: Download phpbrew
+  become: yes
+  get_url:
+    url: https://github.com/phpbrew/phpbrew/raw/master/phpbrew
+    dest: /usr/local/bin/phpbrew
+    mode: 0755
+    force: no
+
+- name: Init phpbrew
+  become: yes
+  shell: PHPBREW_HOME=/opt/phpbrew PHPBREW_ROOT=/opt/phpbrew  /usr/local/bin/phpbrew init
+  args:
+    executable: /bin/bash
+    creates: /opt/phpbrew/bashrc
+    chdir: /opt/phpbrew/
+
+- name: configure phpbrew paths 
+  become: yes
+  blockinfile:
+    path: /opt/phpbrew/bashrc  
+    insertafter: "# PHPBREW_PATH: the bin path of the current php."
+    content: |
+      export PHPBREW_HOME="/opt/phpbrew"
+      export PHPBREW_ROOT="/opt/phpbrew"
+
+- name: addphpbrew to profile
+  become: yes
+  copy:
+    dest: /etc/profile.d/z999-1-phpbrew.sh
+    content: '. /opt/phpbrew/bashrc'
+    mode: 0755
+
+- name: Install php
+  become: yes
+  shell: source /etc/profile && /usr/local/bin/phpbrew install php-7.2 +default +fpm +dbs +exif +imap +curl +gd +intl +gettext +iconv +opcache +xmlrpc -- --with-fpm-systemd --with-ldap  --with-ldap-sasl  --with-gd --with-jpeg-dir  --with-png-dir  --with-zlib-dir  --with-xpm-dir  --with-webp-dir  --with-freetype-dir
+  args:
+    executable: /bin/bash
+    creates: /opt/phpbrew/php/php-7.2.9/bin/php
+    chdir: /opt/phpbrew/

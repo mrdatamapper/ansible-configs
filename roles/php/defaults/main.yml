@@ -1,0 +1,45 @@
+---
+# defaults file for php
+
+php_depends_packages:
+  - wget 
+  - ca-certificates
+  - git
+  - php-cli
+  - git
+  - make
+  - gcc
+  - g++
+  - autoconf
+  - automake
+  - pkg-config
+  - libxml2-dev
+  - libssl-dev
+  - libbz2-dev
+  - libmcrypt-dev
+  - libreadline-dev
+  - zlib1g-dev
+  - libxslt1-dev
+  - libsystemd-dev
+  - bison
+  - re2c
+  - libpng-dev
+  - libjpeg-dev
+  - libwebp-dev
+  - libxmp-dev
+  - libfreetype6-dev
+  - libgd-dev
+  - libldap2-dev
+  - libsasl2-dev
+  - libcurl4-openssl-dev
+  - postgresql-client-10
+  - libpq-dev
+
+src_repos:
+  - deb-src http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse
+  - deb-src http://archive.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse 
+  - deb-src http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse
+  - deb-src http://archive.ubuntu.com/ubuntu/ bionic-proposed main restricted universe multiverse 
+
+php_additional_repos:
+  - deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main

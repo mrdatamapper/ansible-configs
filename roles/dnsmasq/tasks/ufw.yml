@@ -1,0 +1,19 @@
+- name: Allow dhcp
+  become: yes
+  ufw:
+    rule: allow
+    interface: eth1
+    direction: in
+    from_port: 68
+    to_port: 67
+    proto: udp
+  notify: reload ufw
+
+- name: Allow dns
+  become: yes
+  ufw:
+    rule: allow
+    direction: in
+    to_port: 53
+    proto: udp
+  notify: reload ufw

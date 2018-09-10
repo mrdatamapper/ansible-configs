@@ -1,0 +1,22 @@
+---
+# tasks file for postgres
+
+- name: Add an postgres signing key, will not download if present
+  become: yes
+  apt_key:
+    id: B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: add postgres repository
+  become: yes
+  apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
+    state: present
+    filename: postgres
+
+- name: install postgres
+  become: yes
+  apt:
+    name: postgresql-client-10
+    state: latest

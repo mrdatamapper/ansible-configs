@@ -1,0 +1,3 @@
+{% for host in dhcp_hosts %}
+dhcp-host={{ host.mac }},{{ host.ip }}
+{% endfor %}

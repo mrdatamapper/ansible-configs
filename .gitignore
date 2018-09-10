@@ -1,3 +1,5 @@
 hosts
 secret
 site.retry
+host_vars/
+group_vars/

@@ -25,5 +25,6 @@
   - secret
   roles:
   #- nginx
-  - php
+  #- php
+  - postgres
 

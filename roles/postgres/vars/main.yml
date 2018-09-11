@@ -1,2 +1,11 @@
 ---
 # vars file for postgres
+
+postgres_packages:
+  - postgresql-10
+  - postgresql-10-postgis-2.4
+  - postgresql-10-postgis-scripts
+  - postgresql-10-pgrouting
+  - postgresql-client-10
+  - libpq-dev
+  - python3-psycopg2

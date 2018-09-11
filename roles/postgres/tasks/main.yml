@@ -18,5 +18,22 @@
 - name: install postgres
   become: yes
   apt:
-    name: postgresql-client-10
+    name: "{{postgres_packages}}"
     state: latest
+
+- name: Enable service postgres, and set running state
+  become: yes
+  service:
+    name: postgresql
+    enabled: yes
+    state: started
+
+- name: Set default postgres password
+  become: yes
+  become_user: postgres
+  postgresql_user:
+    name: postgres
+    password: "{{postgres_password}}"
+
+
+

@@ -1,0 +1,86 @@
+---
+# tasks file for samba
+
+- name: install samba
+  become: yes
+  apt:
+    name: samba
+    state: latest
+
+- name: Enable service samba, and set running state
+  become: yes
+  service:
+    name: smbd
+    enabled: yes
+    state: started
+
+- name: Create system user for samba
+  become: yes
+  user:
+    name: "{{samba_web_user}}"
+    password: "{{samba_web_password}}"
+    shell: /bin/bash
+    append: yes
+    groups: www-data
+
+- name: Check web samba user exist
+  become: yes
+  shell: 'pdbedit -w -L | grep "{{samba_web_user}}" -q'
+  args:
+    executable: /bin/bash
+  ignore_errors: true
+  register: samba_user_exist_check
+
+- name: Add user to samba
+  become: yes
+  expect:
+    command: 'smbpasswd -a "{{samba_web_user}}"'
+    responses:
+      (?i)password: "{{samba_web_password}}"
+  when: samba_user_exist_check.rc > 0
+  notify: reload samba
+
+- name: Enable user in samba
+  become: yes
+  shell: 'smbpasswd -e "{{samba_web_user}}"'
+  args:
+    executable: /bin/bash
+  when: samba_user_exist_check.rc > 0
+  notify: reload samba
+
+- name: Update samba config
+  become: yes
+  template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload samba
+
+- name: create shares conf dir
+  become: yes
+  file:
+    path: /etc/samba/shares
+    state: directory
+    mode: 0755
+
+- name: fix chmod/chown for share dir
+  become: yes
+  file: 
+    path: /var/www
+    owner: webdev
+    group: www-data
+    mode: u=rwX,g=rwX,o=-r-w-x 
+    state: directory
+    recurse: yes
+
+- name: Add samba share www
+  become: yes
+  template:
+    src: www.conf.j2
+    dest: /etc/samba/shares/www.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload samba

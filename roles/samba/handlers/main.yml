@@ -1,0 +1,8 @@
+---
+# handlers file for samba
+
+- name: reload samba
+  become: yes
+  service: 
+    name: smbd
+    state: reloaded

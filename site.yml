@@ -9,7 +9,7 @@
   vars_files:
   - secret
   roles:
-  - common
+  #- common
 
 - name: applay router config
   hosts: routerx
@@ -25,6 +25,7 @@
   - secret
   roles:
   #- nginx
-  #- php
-  - postgres
+  - php
+  #- postgres
+  #- samba
 

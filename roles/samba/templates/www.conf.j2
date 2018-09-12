@@ -1,0 +1,11 @@
+[www]
+    path = /var/www
+    writeable = true
+    browsable = true
+    valid users = {{samba_web_user}}
+    force group = "www-data"
+    inherit acls = true
+    create mask = 0640
+    force create mode = 0640
+    directory mask = 2750
+    force directory mode = 2750

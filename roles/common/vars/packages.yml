@@ -8,5 +8,6 @@ list_of_common_packages:
   - curl
   - iotop
   - nano
+  - python3-pexpect
 
 

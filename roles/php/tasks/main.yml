@@ -41,13 +41,13 @@
     state: directory
     mode: 0755
 
-- name: Download phpbrew
-  become: yes
-  get_url:
-    url: https://github.com/phpbrew/phpbrew/raw/master/phpbrew
-    dest: /usr/local/bin/phpbrew
-    mode: 0755
-    force: no
+#- name: Download phpbrew
+#  become: yes
+#  get_url:
+#    url: https://github.com/phpbrew/phpbrew/raw/master/phpbrew
+#    dest: /usr/local/bin/phpbrew
+#    mode: 0755
+#    force: no
 
 - name: Init phpbrew
   become: yes
@@ -75,8 +75,97 @@
 
 - name: Install php
   become: yes
-  shell: source /etc/profile && /usr/local/bin/phpbrew install php-7.2 +default +fpm +dbs +exif +imap +curl +gd +intl +gettext +iconv +opcache +xmlrpc -- --with-fpm-systemd --with-ldap  --with-ldap-sasl  --with-gd --with-jpeg-dir  --with-png-dir  --with-zlib-dir  --with-xpm-dir  --with-webp-dir  --with-freetype-dir
+  shell: source /etc/profile && phpbrew install php-7.2 +default +fpm +dbs +exif +imap +curl +gd +intl +gettext +iconv +opcache +xmlrpc -- --with-fpm-systemd --with-ldap  --with-ldap-sasl  --with-gd --with-jpeg-dir  --with-png-dir  --with-zlib-dir  --with-xpm-dir  --with-webp-dir  --with-freetype-dir
   args:
     executable: /bin/bash
     creates: /opt/phpbrew/php/php-7.2.9/bin/php
     chdir: /opt/phpbrew/
+
+- name: Get current php version
+  become: yes
+  shell: source /etc/profile && phpbrew list | grep "*" | awk -F- '{print $2;}' | sed 's/^[ \t]*//;s/[ \t]*$//'
+  args:
+    executable: /bin/bash
+  register: phpbrew_current_output
+  changed_when: False
+  always_run: yes
+
+- name: Register phpbrew fact current
+  set_fact: 
+    php_current_version: "{{ phpbrew_current_output.stdout }}"
+    cacheable: yes
+
+- name: Get latest php version
+  become: yes
+  shell: source /etc/profile && phpbrew list | sort  -n -t. -r +1 +2 +3 | head -n 1 | awk -F- '{print $2;}' | sed 's/^[ \t]*//;s/[ \t]*$//'
+  args:
+    executable: /bin/bash
+  register: phpbrew_list_output
+  changed_when: False
+  always_run: yes
+
+- name: Register phpbrew fact
+  set_fact: 
+    php_version: "{{ phpbrew_list_output.stdout }}"
+    cacheable: yes
+
+- name: Display php version
+  debug:
+    msg: "PHP Versions curent: {{php_current_version}} | latest: {{php_version}}"
+
+- name: Switch php version
+  become: yes
+  shell: source /etc/profile; phpbrew switch "{{php_version}}"
+  args:
+    executable: /bin/bash
+  when: php_version > php_current_version
+
+- name: Update php-fpm config
+  become: yes
+  template:
+    src: php-fpm.conf.j2
+    dest: /opt/phpbrew/php/php-{{php_version}}/etc/php-fpm.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload php-fpm
+
+- name: Update php-www config
+  become: yes
+  template:
+    src: www.conf.j2
+    dest: /opt/phpbrew/php/php-{{php_version}}/etc/php-fpm.d/www.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload php-fpm
+
+- name: Update php.ini config
+  become: yes
+  template:
+    src: php.ini.j2
+    dest: /opt/phpbrew/php/php-{{php_version}}/etc/php.ini
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload php-fpm
+
+- name: Create systemd
+  become: yes
+  shell: source /etc/profile; phpbrew use "{{php_version}}"; phpbrew fpm setup --systemctl php-"{{php_version}}"
+  args:
+    executable: /bin/bash
+    creates: /lib/systemd/system/phpbrew-fpm.service
+  notify: reload php-fpm
+
+- name: Enable systemd service
+  become: yes
+  service:
+    name: phpbrew-fpm
+    enabled: yes
+    state: started
+
+- name: Reload systemd
+  become: yes
+  systemd:
+    daemon_reload: yes

@@ -1,2 +1,8 @@
 ---
 # handlers file for postgres
+
+- name: reload postgres
+  become: yes
+  service: 
+    name: postgresql
+    state: reloaded

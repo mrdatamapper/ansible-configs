@@ -35,5 +35,13 @@
     name: postgres
     password: "{{postgres_password}}"
 
+- name: Allou external connects
+  become: yes
+  lineinfile:
+    path: /etc/postgresql/10/main/pg_hba.conf
+    insertbefore: '# IPv6 local connections:'
+    line: 'host    all             all             192.168.0.0/16          md5'
+  notify: reload postgres
+
 
 

@@ -24,7 +24,7 @@
   vars_files:
   - secret
   roles:
-  #- nginx
+  - nginx
   - php
   #- postgres
   #- samba

@@ -27,3 +27,29 @@
     name: nginx
     enabled: yes
     state: started
+
+- name: Create nginx conf dirs
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  with_items:
+    - /etc/nginx/conf.d
+    - /etc/nginx/conf.sites.d
+    - /etc/nginx/sites
+
+- name: Create nginx configs
+  become: yes
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/nginx/{{ item.path }}"
+    mode: "{{ item.mode }}"
+    owner: root
+    group: root
+  with_filetree:  templates/
+  when: item.state == 'file'
+  notify: reload nginx
+
